@@ -1,0 +1,11 @@
+.form {
+  width: 30vh;
+  padding: 10px;
+  display: flex;
+  flex-flow: column;
+  margin: 0 auto;
+}
+
+.form > div {
+  margin: 5px 0px;
+}
