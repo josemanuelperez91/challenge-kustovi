@@ -19,7 +19,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export default function Card() {
+export default function Card(data) {
   const classes = useStyles();
 
   return (
@@ -29,12 +29,12 @@ export default function Card() {
           <Avatar
             className={classes.avatar}
             alt="Nombre"
-            src="/logo192.png"
+            src={data.avatar}
           ></Avatar>
         </Grid>
         <Grid xs={12} sm item container direction="column" alignItems="center">
-          <Typography variant="body1">Nombre</Typography>
-          <Typography variant="body1">Apellido Apellido</Typography>
+          <Typography variant="body1">{data.name}</Typography>
+          <Typography variant="body1">{data.surname}</Typography>
         </Grid>
       </Grid>
     </Paper>

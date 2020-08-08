@@ -13,6 +13,8 @@ import Fab from '@material-ui/core/Fab';
 import EditIcon from '@material-ui/icons/Edit';
 import Button from '@material-ui/core/Button';
 
+import firebase from '../../config/firebaseConfig';
+
 const useStyles = makeStyles((theme) => ({
   avatar: {
     width: 120,
@@ -24,6 +26,9 @@ const useStyles = makeStyles((theme) => ({
   editAvatar: {
     bottom: 40,
     left: 40,
+  },
+  inputAvatar: {
+    display: 'none',
   },
 }));
 export default function Editor() {
@@ -39,16 +44,39 @@ export default function Editor() {
   const handleChange = (event) => {
     setFormData({ ...formData, [event.target.name]: event.target.value });
   };
+
+  const clickInput = () => {
+    const input = document.querySelector('input[name=avatar]');
+    input.click();
+  };
+
+  const onSubmit = (event) => {
+    event.preventDefault();
+    const usersRef = firebase.database().ref('users');
+    const newUserKey = usersRef.push().key;
+
+    usersRef.child(newUserKey).update({
+      ...formData,
+    });
+  };
+
   return (
     <Grid container justify="center">
-      <form noValidate autoComplete="off">
+      <form onSubmit={onSubmit} noValidate autoComplete="off">
         <Grid container alignItems="center" spacing={4}>
           <Grid item>
             <Avatar className={classes.avatar} alt="Nombre" src=""></Avatar>
+            <input
+              className={classes.inputAvatar}
+              type="file"
+              name="avatar"
+              accept="image/png, image/jpeg"
+            />
             <Fab
               color="primary"
               className={classes.editAvatar}
               aria-label="edit"
+              onClick={clickInput}
             >
               <EditIcon />
             </Fab>
@@ -94,7 +122,7 @@ export default function Editor() {
               </FormControl>
             </Grid>
             <Grid item>
-              <Button variant="outlined" color="primary">
+              <Button type="submit" variant="outlined" color="primary">
                 Guardar
               </Button>
             </Grid>
