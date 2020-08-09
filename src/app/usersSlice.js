@@ -1,32 +1,46 @@
 import { createSlice } from '@reduxjs/toolkit';
+import { usersRef } from '../api/firebase';
 
-export const counterSlice = createSlice({
+export const usersSlice = createSlice({
   name: 'users',
   initialState: {
-    users: [],
+    value: [],
+    currentUser: '',
   },
   reducers: {
-    fetchUsersSuccess: (state) => {
-      // Redux Toolkit allows us to write "mutating" logic in reducers. It
-      // doesn't actually mutate the state because it uses the Immer library,
-      // which detects changes to a "draft state" and produces a brand new
-      // immutable state based off those changes
-      state.value += 1;
+    getUsersSuccess: (state, action) => {
+      state.value = action.payload;
     },
-    decrement: (state) => {
-      state.value -= 1;
+    changeCurrentUser: (state, action) => {
+      state.currentUser = action.payload;
     },
-    incrementByAmount: (state, action) => {},
   },
 });
+export const {
+  getUsersSuccess,
+  addUserSuccess,
+  changeCurrentUser,
+} = usersSlice.actions;
 
-export const getUsersAsync = (users) => (dispatch) => {
-  state.users += action.payload;
+export const getUsersAsync = () => (dispatch) => {
+  usersRef.on('value', (snapshot) => {
+    const arrayUsers = [];
+    snapshot.forEach((user) => {
+      const userData = {
+        ...user.val(),
+        uid: user.key,
+      };
+      arrayUsers.push(userData);
+    });
+    dispatch(getUsersSuccess(arrayUsers));
+  });
 };
 
-// The function below is called a selector and allows us to select a value from
-// the state. Selectors can also be defined inline where they're used instead of
-// in the slice file. For example: `useSelector((state) => state.counter.value)`
-export const selectCount = (state) => state.counter.value;
+export const updateUserAsync = (userData) => () => {
+  const userKey = userData.uid ? userData.uid : usersRef.push().key;
+  usersRef.child(userKey).update(userData);
+};
 
-export default counterSlice.reducer;
+export const selectUsers = (state) => state.users.value;
+
+export default usersSlice.reducer;

@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-// import { useSelector, useDispatch } from 'react-redux';
 
 import TextField from '@material-ui/core/TextField';
 import MenuItem from '@material-ui/core/MenuItem';
@@ -12,8 +11,9 @@ import { makeStyles } from '@material-ui/core/styles';
 import Fab from '@material-ui/core/Fab';
 import EditIcon from '@material-ui/icons/Edit';
 import Button from '@material-ui/core/Button';
+import { useDispatch } from 'react-redux';
 
-import firebase from '../../config/firebaseConfig';
+import { updateUserAsync } from '../../app/usersSlice';
 
 const useStyles = makeStyles((theme) => ({
   avatar: {
@@ -49,15 +49,10 @@ export default function Editor() {
     const input = document.querySelector('input[name=avatar]');
     input.click();
   };
-
+  const dispatch = useDispatch();
   const onSubmit = (event) => {
     event.preventDefault();
-    const usersRef = firebase.database().ref('users');
-    const newUserKey = usersRef.push().key;
-
-    usersRef.child(newUserKey).update({
-      ...formData,
-    });
+    dispatch(updateUserAsync(formData));
   };
 
   return (

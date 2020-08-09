@@ -1,25 +1,40 @@
-import React, { useState } from 'react';
+import React, { useEffect } from 'react';
 import Grid from '@material-ui/core/Grid';
 import Card from '../Card/Card';
 import Typography from '@material-ui/core/Typography';
-
-import firebase from '../../config/firebaseConfig';
-
+import { useSelector, useDispatch } from 'react-redux';
+import {
+  selectUsers,
+  getUsersAsync,
+  changeCurrentUser,
+} from '../../app/usersSlice';
 export default function Grids() {
-  const usersRef = firebase.database().ref('users');
+  const users = useSelector(selectUsers);
 
-  const [users, setUsers] = useState([]);
-
-  usersRef.on('value', function (snapshot) {
-    // setUsers(snapshot.val());
-    console.log(snapshot.val());
-  });
-
-  function filledCard() {
-    return users.map((user) => {
-      return <Card data={user}></Card>;
-    });
+  function FilledAccessCards(props) {
+    return users
+      .filter((user) => user.access)
+      .map((user) => {
+        return <Card key={user.uid} user={user} {...props}></Card>;
+      });
   }
+
+  function FilledNoAccessCards(props) {
+    return users
+      .filter((user) => !user.access)
+      .map((user) => {
+        return <Card key={user.uid} user={user} {...props}></Card>;
+      });
+  }
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    dispatch(getUsersAsync());
+  }, [dispatch]);
+
+  const handleClick = (event, key) => {
+    dispatch(changeCurrentUser(key));
+  };
 
   return (
     <Grid container spacing={2}>
@@ -32,7 +47,7 @@ export default function Grids() {
         alignItems="center"
       >
         <Typography variant="h5">Con Acceso</Typography>
-        <filledCard></filledCard>
+        <FilledAccessCards onClick={handleClick}></FilledAccessCards>
       </Grid>
       <Grid
         item
@@ -43,7 +58,7 @@ export default function Grids() {
         alignItems="center"
       >
         <Typography variant="h5">Sin Acceso</Typography>
-        <filledCard></filledCard>
+        <FilledNoAccessCards onClick={handleClick}></FilledNoAccessCards>
       </Grid>
     </Grid>
   );
