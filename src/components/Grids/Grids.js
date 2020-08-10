@@ -11,6 +11,9 @@ import {
 export default function Grids() {
   const users = useSelector(selectUsers);
 
+  /**
+   * Passes only users with access
+   */
   function FilledAccessCards(props) {
     return users
       .filter((user) => user.access)
@@ -18,7 +21,9 @@ export default function Grids() {
         return <Card key={user.uid} user={user} {...props}></Card>;
       });
   }
-
+  /**
+   * Passes only users without access
+   */
   function FilledNoAccessCards(props) {
     return users
       .filter((user) => !user.access)
@@ -28,10 +33,16 @@ export default function Grids() {
   }
   const dispatch = useDispatch();
 
+  /**
+   * Loads users from the database.
+   */
   useEffect(() => {
     dispatch(getUsersAsync());
   }, [dispatch]);
 
+  /**
+   * Changes the state pointing to the selected user.
+   */
   const handleClick = (event, key) => {
     dispatch(changeCurrentUser(key));
   };

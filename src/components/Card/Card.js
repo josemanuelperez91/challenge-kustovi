@@ -1,14 +1,14 @@
 import React from 'react';
-// import { useSelector, useDispatch } from 'react-redux';
-// import styles from './Editor.module.css';
 import Grid from '@material-ui/core/Grid';
 import Typography from '@material-ui/core/Typography';
 import Avatar from '@material-ui/core/Avatar';
-// import styles from './Card.module.css';
 import { makeStyles } from '@material-ui/core/styles';
 import Paper from '@material-ui/core/Paper';
 import { ButtonBase } from '@material-ui/core';
 
+/**
+ * Material-ui custom styles
+ */
 const useStyles = makeStyles((theme) => ({
   avatar: {
     width: 60,

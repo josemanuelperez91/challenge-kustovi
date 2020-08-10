@@ -7,6 +7,7 @@ export const usersSlice = createSlice({
     value: [],
     currentUser: '',
   },
+  // Redux Toolkit allows us to write "mutating" logic in reducers.
   reducers: {
     getUsersSuccess: (state, action) => {
       state.value = action.payload;
@@ -26,6 +27,10 @@ export const {
   resetCurrentUser,
 } = usersSlice.actions;
 
+/**
+ * Thunk to retreive all users from the firebase realtime database.
+ * Transform the object retrieved into an array to store it.
+ */
 export const getUsersAsync = () => (dispatch) => {
   usersDBRef.on('value', (snapshot) => {
     const arrayUsers = [];
@@ -39,7 +44,15 @@ export const getUsersAsync = () => (dispatch) => {
     dispatch(getUsersSuccess(arrayUsers));
   });
 };
-
+/**
+ * Thunk to update user data in the firestore realtime database.
+ *
+ * Get the current user key from the store or creates a new one.
+ *
+ * Updates the avatar image using firebase storage if changed or
+ * if it is for a new user.
+ *
+ */
 export const updateUserAsync = (userData) => async (dispatch, getState) => {
   const state = getState();
   const userKey = state.users.currentUser
@@ -58,6 +71,10 @@ export const updateUserAsync = (userData) => async (dispatch, getState) => {
 };
 
 export const selectUsers = (state) => state.users.value;
+
+/**
+ * Gets the current selected user data from the store
+ */
 export const selectCurrentUser = (state) => {
   return state.users.value.filter(
     (user) => user.uid === state.users.currentUser

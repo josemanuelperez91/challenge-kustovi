@@ -19,6 +19,9 @@ import {
   resetCurrentUser,
 } from '../../app/usersSlice';
 
+/**
+ * Material-ui custom styles
+ */
 const useStyles = makeStyles((theme) => ({
   avatar: {
     width: 120,
@@ -47,30 +50,44 @@ export default function Editor() {
     avatar: '',
   };
   const [formData, setFormData] = useState({ ...initialState });
+  const dispatch = useDispatch();
 
+  /**
+   * Handles the state, modified by inputs in the form.
+   */
   const handleChange = (event) => {
     setFormData({ ...formData, [event.target.name]: event.target.value });
   };
 
+  /**
+   * Loads the user data into the form whenever a user is selected.
+   */
   const currentUser = useSelector(selectCurrentUser);
-
   useEffect(() => {
     if (currentUser) {
       setFormData({ ...currentUser });
     }
   }, [setFormData, currentUser]);
 
+  /**
+   * Opens the file input window when the edit button is clicked.
+   */
   const clickInput = () => {
     const input = document.querySelector('input[name=avatar]');
     input.click();
   };
 
+  /**
+   * Clears the form inputs.
+   */
   const handleCancel = () => {
     dispatch(resetCurrentUser());
     setFormData({ ...initialState });
   };
 
-  const dispatch = useDispatch();
+  /**
+   * Manages the submit behaviour.
+   */
   const onSubmit = (event) => {
     event.preventDefault();
     setFormData({ ...initialState });
@@ -78,6 +95,9 @@ export default function Editor() {
     dispatch(resetCurrentUser());
   };
 
+  /**
+   * Manages the file in order to allow the input file to be controlled.
+   */
   function handleFileSelect(evt) {
     const file = evt.target.files[0];
     const reader = new FileReader();
