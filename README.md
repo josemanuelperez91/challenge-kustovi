@@ -1,5 +1,23 @@
 # Seguridad SL - Code Challenge
 
+![GitHub package.json version](https://img.shields.io/github/package-json/v/josemanuelperez91/challenge-kustovi)
+![GitHub repo size](https://img.shields.io/github/repo-size/josemanuelperez91/challenge-kustovi)
+![GitHub](https://img.shields.io/github/license/josemanuelperez91/challenge-kustovi)
+
+## Download
+
+Copy or clone this application using Git with:
+
+    git clone https://github.com/josemanuelperez91/challenge-kustovi.git
+
+## Install
+
+Inside the root folder, use Yarn to install the required and development dependecies:
+
+    cd challenge-kustovi
+
+    yarn install
+
 ## Available Scripts
 
 In the project directory, you can run:
