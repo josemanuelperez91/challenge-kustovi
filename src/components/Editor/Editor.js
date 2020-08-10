@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
 import TextField from '@material-ui/core/TextField';
 import MenuItem from '@material-ui/core/MenuItem';
@@ -11,9 +11,13 @@ import { makeStyles } from '@material-ui/core/styles';
 import Fab from '@material-ui/core/Fab';
 import EditIcon from '@material-ui/icons/Edit';
 import Button from '@material-ui/core/Button';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 
-import { updateUserAsync } from '../../app/usersSlice';
+import {
+  updateUserAsync,
+  selectCurrentUser,
+  resetCurrentUser,
+} from '../../app/usersSlice';
 
 const useStyles = makeStyles((theme) => ({
   avatar: {
@@ -30,42 +34,78 @@ const useStyles = makeStyles((theme) => ({
   inputAvatar: {
     display: 'none',
   },
+  cancelButton: {
+    marginLeft: 10,
+  },
 }));
 export default function Editor() {
   const classes = useStyles();
-
   const initialState = {
     name: '',
     surname: '',
     access: '',
+    avatar: '',
   };
-  const [formData, setFormData] = useState(initialState);
+  const [formData, setFormData] = useState({ ...initialState });
 
   const handleChange = (event) => {
     setFormData({ ...formData, [event.target.name]: event.target.value });
   };
 
+  const currentUser = useSelector(selectCurrentUser);
+
+  useEffect(() => {
+    if (currentUser) {
+      setFormData({ ...currentUser });
+    }
+  }, [setFormData, currentUser]);
+
   const clickInput = () => {
     const input = document.querySelector('input[name=avatar]');
     input.click();
   };
+
+  const handleCancel = () => {
+    dispatch(resetCurrentUser());
+    setFormData({ ...initialState });
+  };
+
   const dispatch = useDispatch();
   const onSubmit = (event) => {
     event.preventDefault();
+    setFormData({ ...initialState });
     dispatch(updateUserAsync(formData));
+    dispatch(resetCurrentUser());
   };
+
+  function handleFileSelect(evt) {
+    const file = evt.target.files[0];
+    const reader = new FileReader();
+    reader.onloadend = function () {
+      setFormData({
+        ...formData,
+        avatar: reader.result,
+      });
+    };
+    reader.readAsDataURL(file);
+  }
 
   return (
     <Grid container justify="center">
-      <form onSubmit={onSubmit} noValidate autoComplete="off">
+      <form onSubmit={onSubmit} autoComplete="off">
         <Grid container alignItems="center" spacing={4}>
           <Grid item>
-            <Avatar className={classes.avatar} alt="Nombre" src=""></Avatar>
+            <Avatar
+              className={classes.avatar}
+              alt="Nombre"
+              src={formData.avatar}
+            ></Avatar>
             <input
               className={classes.inputAvatar}
               type="file"
               name="avatar"
               accept="image/png, image/jpeg"
+              onChange={handleFileSelect}
             />
             <Fab
               color="primary"
@@ -91,6 +131,7 @@ export default function Editor() {
                 name="name"
                 label="Nombre"
                 variant="outlined"
+                required={true}
               />
             </Grid>
             <Grid item>
@@ -100,6 +141,7 @@ export default function Editor() {
                 name="surname"
                 label="Apellidos"
                 variant="outlined"
+                required={true}
               />
             </Grid>
             <Grid item>
@@ -110,6 +152,7 @@ export default function Editor() {
                   value={formData.access}
                   onChange={handleChange}
                   label="¿Acceso?"
+                  required={true}
                 >
                   <MenuItem value={true}>Permitido</MenuItem>
                   <MenuItem value={false}>No permitido</MenuItem>
@@ -119,6 +162,14 @@ export default function Editor() {
             <Grid item>
               <Button type="submit" variant="outlined" color="primary">
                 Guardar
+              </Button>
+              <Button
+                className={classes.cancelButton}
+                variant="outlined"
+                color="secondary"
+                onClick={handleCancel}
+              >
+                Cancelar
               </Button>
             </Grid>
           </Grid>

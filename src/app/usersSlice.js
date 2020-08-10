@@ -1,5 +1,5 @@
 import { createSlice } from '@reduxjs/toolkit';
-import { usersRef } from '../api/firebase';
+import { usersDBRef, usersStorageRef } from '../api/firebase';
 
 export const usersSlice = createSlice({
   name: 'users',
@@ -14,16 +14,20 @@ export const usersSlice = createSlice({
     changeCurrentUser: (state, action) => {
       state.currentUser = action.payload;
     },
+    resetCurrentUser: (state) => {
+      state.currentUser = '';
+    },
   },
 });
 export const {
   getUsersSuccess,
   addUserSuccess,
   changeCurrentUser,
+  resetCurrentUser,
 } = usersSlice.actions;
 
 export const getUsersAsync = () => (dispatch) => {
-  usersRef.on('value', (snapshot) => {
+  usersDBRef.on('value', (snapshot) => {
     const arrayUsers = [];
     snapshot.forEach((user) => {
       const userData = {
@@ -36,11 +40,28 @@ export const getUsersAsync = () => (dispatch) => {
   });
 };
 
-export const updateUserAsync = (userData) => () => {
-  const userKey = userData.uid ? userData.uid : usersRef.push().key;
-  usersRef.child(userKey).update(userData);
+export const updateUserAsync = (userData) => async (dispatch, getState) => {
+  const state = getState();
+  const userKey = state.users.currentUser
+    ? state.users.currentUser
+    : usersDBRef.push().key;
+
+  if (userData.avatar.startsWith('data:')) {
+    const imageUploadSnapshot = await usersStorageRef
+      .child(userKey)
+      .putString(userData.avatar, 'data_url');
+    const uploadedImageURL = await imageUploadSnapshot.ref.getDownloadURL();
+    userData.avatar = uploadedImageURL;
+  }
+
+  usersDBRef.child(userKey).update(userData);
 };
 
 export const selectUsers = (state) => state.users.value;
+export const selectCurrentUser = (state) => {
+  return state.users.value.filter(
+    (user) => user.uid === state.users.currentUser
+  )[0];
+};
 
 export default usersSlice.reducer;
